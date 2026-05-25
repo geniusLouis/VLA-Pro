@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="VLA-Pro project page: Cross-Task Procedural Memory Transfer for Vision-Language-Action Models.">
+  <title>VLA-Pro: Cross-Task Procedural Memory Transfer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top">VLA-Pro</a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="#abstract">Abstract</a>
+      <a href="#method">Method</a>
+      <a href="#results">Results</a>
+      <a href="#videos">Videos</a>
+      <a href="#bibtex">BibTeX</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero section-band">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Vision-Language-Action Models</p>
+          <h1>VLA-Pro: Cross-Task Procedural Memory Transfer for Vision-Language-Action Models</h1>
+          <p class="authors">Anonymous Author(s)</p>
+          <p class="venue">Submitted to NeurIPS 2026</p>
+          <div class="action-row" aria-label="Project links">
+            <a class="button primary" href="paper.pdf" target="_blank" rel="noreferrer">
+              <i data-lucide="file-text"></i>
+              <span>Paper</span>
+            </a>
+            <a class="button" href="https://anonymous.4open.science/r/VLA-Pro/" target="_blank" rel="noreferrer">
+              <i data-lucide="code-2"></i>
+              <span>Code</span>
+            </a>
+            <a class="button" href="#videos">
+              <i data-lucide="play-circle"></i>
+              <span>Videos</span>
+            </a>
+            <a class="button" href="#bibtex">
+              <i data-lucide="quote"></i>
+              <span>Cite</span>
+            </a>
+          </div>
+        </div>
+        <figure class="hero-figure">
+          <img src="assets/images/intro.png" alt="VLA-Pro overview figure showing procedural memory retrieval and LoRA adaptation.">
+          <figcaption>Overview of VLA-Pro: retrieve task-relevant procedural memories and fuse task-specific LoRA adapters during inference.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="quick-summary section">
+      <div class="container summary-grid">
+        <div class="summary-item">
+          <span class="metric">59.3%</span>
+          <span class="label">RoboTwin success with VLA-Pro on pi0.5</span>
+        </div>
+        <div class="summary-item">
+          <span class="metric">+207%</span>
+          <span class="label">RoboTwin relative gain on RDT backbone</span>
+        </div>
+        <div class="summary-item">
+          <span class="metric">20.9%</span>
+          <span class="label">RLBench zero-shot average success</span>
+        </div>
+        <div class="summary-item">
+          <span class="metric">+51%</span>
+          <span class="label">RLBench improvement over pi0.5 baseline</span>
+        </div>
+        <div class="summary-item">
+          <span class="metric">65.0%</span>
+          <span class="label">real-world average success with VLA-Pro</span>
+        </div>
+        <div class="summary-item">
+          <span class="metric">+59.2</span>
+          <span class="label">real-world percentage-point improvement</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="abstract" class="section">
+      <div class="container narrow">
+        <h2>Abstract</h2>
+        <p>
+          Vision-Language-Action (VLA) models have shown strong potential for general-purpose robotic manipulation, yet they still struggle to generalize to unseen tasks that necessitate transferring relevant experience across objects, scenes, and action patterns. This paper proposes VLA-Pro, a plug-and-play framework designed to enhance cross-task generalization by storing task-relevant procedural memories at training time and transferring these memories during inference.
+        </p>
+        <p>
+          VLA-Pro stores task-specific LoRA adapters as parameterized procedural memories during training. At inference time, it retrieves relevant procedural memories based on the current multi-modal context and dynamically fuses these memories for generating the current action chunk. Experiments on RoboTwin, RLBench, and real-world manipulation tasks show that VLA-Pro consistently improves cross-task generalization across multiple backbones.
+        </p>
+      </div>
+    </section>
+
+    <section class="section-band">
+      <div class="container">
+        <h2>Highlights</h2>
+        <div class="card-grid four">
+          <article class="paper-card">
+            <i data-lucide="database"></i>
+            <h3>Procedural Memory</h3>
+            <p>Stores seen-task procedural states and task-specific LoRA adapters as retrievable, executable memories.</p>
+          </article>
+          <article class="paper-card">
+            <i data-lucide="search"></i>
+            <h3>Action-Aware Retrieval</h3>
+            <p>Matches the current procedural state using action type, object geometry, end-effector orientation, and target interaction point.</p>
+          </article>
+          <article class="paper-card">
+            <i data-lucide="combine"></i>
+            <h3>LoRA Fusion</h3>
+            <p>Converts memory similarities into fusion coefficients and merges top-k task adapters for the current execution stage.</p>
+          </article>
+          <article class="paper-card">
+            <i data-lucide="bot"></i>
+            <h3>Cross-Task Transfer</h3>
+            <p>Improves unseen-task execution on RoboTwin, RLBench, and real-world robotic manipulation scenarios.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="method" class="section">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Method</h2>
+          <p>VLA-Pro abstracts the current execution stage into a structured procedural state, retrieves relevant source memories, and temporarily injects a fused adapter into the VLA backbone.</p>
+        </div>
+        <figure class="wide-figure">
+          <img src="assets/images/fig2.png" alt="Figure 2: VLA-Pro method overview with procedural memory retrieval and LoRA adaptation.">
+        </figure>
+        <div class="pipeline">
+          <article>
+            <span>1</span>
+            <h3>Base LoRA Preparation</h3>
+            <p>Train a shared base LoRA on seen tasks to capture general manipulation knowledge.</p>
+          </article>
+          <article>
+            <span>2</span>
+            <h3>Memory Construction</h3>
+            <p>Extract procedural state sequences and fine-tune task-specific LoRA adapters for source tasks.</p>
+          </article>
+          <article>
+            <span>3</span>
+            <h3>Online Retrieval</h3>
+            <p>Before each action chunk, query the memory bank with the current procedural state.</p>
+          </article>
+          <article>
+            <span>4</span>
+            <h3>Adapter Fusion</h3>
+            <p>Softmax-normalize top-k similarities and merge retrieved LoRA adapters by weighted summation.</p>
+          </article>
+          <article>
+            <span>5</span>
+            <h3>Task Execution</h3>
+            <p>Load the fused adapter, execute the current chunk, unload it, and repeat for the next stage.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-band">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Memory Bank Examples</h2>
+          <p>Representative source memories and transfer targets from RoboTwin and RLBench.</p>
+        </div>
+        <div class="memory-columns">
+          <div class="memory-column">
+            <article class="task-card">
+              <img src="assets/images/robotwin/click-bell.png" alt="RoboTwin click bell task memory example.">
+              <p class="task-domain">RoboTwin</p>
+              <h3>click_bell</h3>
+              <p>Transfers precise target-contact behavior in held-out simulation tasks.</p>
+            </article>
+            <article class="task-card">
+              <img src="assets/images/close-jar.png" alt="RLBench close jar source memory example.">
+              <p class="task-domain">RLBench</p>
+              <h3>close_jar</h3>
+              <p>Object-level source memory for jar lid interaction and retrieval.</p>
+            </article>
+          </div>
+          <div class="memory-column">
+            <article class="task-card">
+              <img src="assets/images/robotwin/place-bread-behind.png" alt="RoboTwin place bread behind task memory example.">
+              <p class="task-domain">RoboTwin</p>
+              <h3>place_bread_behind</h3>
+              <p>Stores spatial-relation placement patterns for unseen object layouts.</p>
+            </article>
+            <article class="task-card">
+              <img src="assets/images/open-drawer.png" alt="RLBench open drawer source memory example.">
+              <p class="task-domain">RLBench</p>
+              <h3>open_drawer</h3>
+              <p>Pulling and spatial-interaction memory for drawer-like objects.</p>
+            </article>
+          </div>
+          <div class="memory-column">
+            <article class="task-card">
+              <img src="assets/images/robotwin/place-glue-stand.png" alt="RoboTwin place glue on stand task memory example.">
+              <p class="task-domain">RoboTwin</p>
+              <h3>place_glue_stand</h3>
+              <p>Provides grasp-and-place experience for upright placement targets.</p>
+            </article>
+            <article class="task-card">
+              <img src="assets/images/push-buttons.png" alt="RLBench push buttons source memory example.">
+              <p class="task-domain">RLBench</p>
+              <h3>push_buttons</h3>
+              <p>Target-point memory for pressing small articulated objects.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="results" class="section">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Results</h2>
+          <p>VLA-Pro is evaluated in three complementary settings: RoboTwin simulation, RLBench zero-shot transfer, and real-world robot manipulation.</p>
+        </div>
+        <div class="results-columns">
+          <article class="result-column">
+            <h3>RoboTwin Simulation</h3>
+            <div class="bar-chart" aria-label="RoboTwin results">
+              <div class="bar-row"><span>X-VLA base</span><div><b style="width:17%"></b></div><em>17.0</em></div>
+              <div class="bar-row accent"><span>X-VLA VLA-Pro</span><div><b style="width:30%"></b></div><em>30.0</em></div>
+              <div class="bar-row"><span>RDT base</span><div><b style="width:11.1%"></b></div><em>11.1</em></div>
+              <div class="bar-row accent"><span>RDT VLA-Pro</span><div><b style="width:34.1%"></b></div><em>34.1</em></div>
+              <div class="bar-row"><span>pi0.5 base</span><div><b style="width:40.4%"></b></div><em>40.4</em></div>
+              <div class="bar-row accent"><span>pi0.5 VLA-Pro</span><div><b style="width:59.3%"></b></div><em>59.3</em></div>
+            </div>
+            <table class="mini-result-table">
+              <thead>
+                <tr><th>Backbone</th><th>Base</th><th>VLA-Pro</th><th>Gain</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>X-VLA</td><td>17.0</td><td>30.0</td><td>+76%</td></tr>
+                <tr><td>RDT</td><td>11.1</td><td>34.1</td><td>+207%</td></tr>
+                <tr><td>pi0.5</td><td>40.4</td><td>59.3</td><td>+47%</td></tr>
+                <tr class="highlight-row"><td>Best gain</td><td colspan="2">RDT backbone</td><td>+207%</td></tr>
+              </tbody>
+            </table>
+          </article>
+          <article class="result-column">
+            <h3>RLBench Zero-Shot</h3>
+            <div class="bar-chart" aria-label="RLBench results">
+              <div class="bar-row"><span>RDT</span><div><b style="width:48.8%"></b></div><em>10.2</em></div>
+              <div class="bar-row"><span>pi0.5</span><div><b style="width:66%"></b></div><em>13.8</em></div>
+              <div class="bar-row"><span>AtomicVLA</span><div><b style="width:70.3%"></b></div><em>14.7</em></div>
+              <div class="bar-row accent"><span>VLA-Pro k=1</span><div><b style="width:80.9%"></b></div><em>16.9</em></div>
+              <div class="bar-row accent"><span>VLA-Pro k=2</span><div><b style="width:100%"></b></div><em>20.9</em></div>
+              <div class="bar-row accent"><span>VLA-Pro k=3</span><div><b style="width:78.5%"></b></div><em>16.4</em></div>
+            </div>
+            <table class="mini-result-table">
+              <thead>
+                <tr><th>Method</th><th>Avg.</th><th>Comparison</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>RDT</td><td>10.2</td><td>general baseline</td></tr>
+                <tr><td>pi0.5</td><td>13.8</td><td>backbone baseline</td></tr>
+                <tr><td>AtomicVLA</td><td>14.7</td><td>skill-expert baseline</td></tr>
+                <tr class="highlight-row"><td>VLA-Pro</td><td>20.9</td><td>+51% vs pi0.5</td></tr>
+              </tbody>
+            </table>
+          </article>
+          <article class="result-column">
+            <h3>Real-World Robot</h3>
+            <div class="bar-chart" aria-label="Real-world results">
+              <div class="bar-row accent"><span>bottle box</span><div><b style="width:20%"></b></div><em>20</em></div>
+              <div class="bar-row accent"><span>microphone</span><div><b style="width:85%"></b></div><em>85</em></div>
+              <div class="bar-row accent"><span>cup box</span><div><b style="width:95%"></b></div><em>95</em></div>
+              <div class="bar-row accent"><span>shake chem.</span><div><b style="width:75%"></b></div><em>75</em></div>
+              <div class="bar-row accent"><span>flick bottle</span><div><b style="width:50%"></b></div><em>50</em></div>
+              <div class="bar-row accent"><span>tap chips</span><div><b style="width:65%"></b></div><em>65</em></div>
+            </div>
+            <table class="mini-result-table">
+              <thead>
+                <tr><th>Metric</th><th>Base</th><th>VLA-Pro</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Average</td><td>5.8</td><td>65.0</td></tr>
+                <tr><td>Best task</td><td>15.0</td><td>95.0</td></tr>
+                <tr><td>Improvement</td><td colspan="2">+59.2 percentage points</td></tr>
+                <tr class="highlight-row"><td>Held-out tasks</td><td colspan="2">6 real-world tasks</td></tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+
+        <div class="card-grid three">
+          <article class="paper-card compact">
+            <h3>RoboTwin</h3>
+            <p>VLA-Pro improves all three backbones on held-out simulation tasks, with the largest relative gain on RDT.</p>
+          </article>
+          <article class="paper-card compact">
+            <h3>RLBench</h3>
+            <p>On RLBench, k=2 achieves the best average success rate, indicating that a proper number of related memories improves transfer.</p>
+          </article>
+          <article class="paper-card compact">
+            <h3>Real-World</h3>
+            <p>Using pi0.5 as the backbone, VLA-Pro increases real-world average success from 5.8% to 65.0% over six held-out tasks.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="videos" class="section">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Videos</h2>
+          <p>RoboTwin simulation clips and real-world experiment clips from the project assets.</p>
+        </div>
+
+        <h3 class="subsection-title">RoboTwin Simulation Success</h3>
+        <div class="video-grid three">
+          <article class="video-card"><video controls preload="metadata" muted playsinline src="assets/videos/robotwin/place-apple-stand.mp4"></video><h4>place_apple_stand</h4></article>
+          <article class="video-card"><video controls preload="metadata" muted playsinline src="assets/videos/robotwin/close-microwave.mp4"></video><h4>close_microwave</h4></article>
+          <article class="video-card"><video controls preload="metadata" muted playsinline src="assets/videos/robotwin/stack-bowls.mp4"></video><h4>stack_bowls</h4></article>
+        </div>
+
+        <h3 class="subsection-title">Real-World Experiments</h3>
+        <div class="video-grid three">
+          <article class="video-card"><video controls preload="metadata" muted playsinline src="assets/videos/real-world/1.mp4"></video><h4>Real-world 1</h4></article>
+          <article class="video-card"><video controls preload="metadata" muted playsinline src="assets/videos/real-world/2.mp4"></video><h4>Real-world 2</h4></article>
+          <article class="video-card"><video controls preload="metadata" muted playsinline src="assets/videos/real-world/3.mp4"></video><h4>Real-world 3</h4></article>
+          <article class="video-card"><video controls preload="metadata" muted playsinline src="assets/videos/real-world/4.mp4"></video><h4>Real-world 4</h4></article>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="bibtex" class="section-band">
+      <div class="container narrow">
+        <h2>BibTeX</h2>
+        <div class="code-header">
+          <span>citation.bib</span>
+          <button class="copy-button" type="button" data-copy-target="bibtex-code">
+            <i data-lucide="copy"></i>
+            <span>Copy</span>
+          </button>
+        </div>
+        <pre><code id="bibtex-code">@misc{vlapro2026,
+  title  = {VLA-Pro: Cross-Task Procedural Memory Transfer for Vision-Language-Action Models},
+  author = {Anonymous Author(s)},
+  year   = {2026},
+  note   = {Submitted to NeurIPS 2026}
+}</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <p>Built as a static project page for VLA-Pro.</p>
+    </div>
+  </footer>
+
+  <script src="assets/vendor/lucide.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
